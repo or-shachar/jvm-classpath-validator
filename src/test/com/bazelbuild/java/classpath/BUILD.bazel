@@ -1,0 +1,12 @@
+load("@rules_java//java:defs.bzl", "java_test")
+
+java_test(
+    name = "classpath_run",
+    test_class = "com.bazelbuild.java.classpath.ClasspathEntriesTest",
+    srcs = [
+        "ClasspathEntriesTest.java"
+    ],
+    deps = [
+        "@maven//:junit_junit",
+    ]
+)

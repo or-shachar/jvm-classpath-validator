@@ -1,0 +1,16 @@
+load("@rules_java//java:defs.bzl", "java_library", "java_binary")
+
+java_library(
+    name = "consumer",
+    srcs = ["Consumer.java"],
+    deps = [
+        "//example/b/com/example/duppy",
+        "//example/a/com/example/duppy",
+    ]
+)
+
+java_binary(
+    name = "consumer_run",
+    runtime_deps = [ ":consumer"],
+    main_class = "com.example.consumer.Consumer",
+)
