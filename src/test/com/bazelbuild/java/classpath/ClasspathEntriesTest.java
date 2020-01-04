@@ -7,7 +7,6 @@ import org.junit.runners.JUnit4;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -20,14 +19,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ClasspathEntriesTest {
     @Test
     public void listFiles() throws IOException, NoSuchAlgorithmException {
-        DummyFileEntry jarEntry = new DummyFileEntry("a.txt", "I am A");
-        Path dummyJarPath = prepareDummyJarWith(jarEntry);
+        DummyFileEntry jarEntryA = new DummyFileEntry("a.txt", "I am A");
+        DummyFileEntry jarEntryB = new DummyFileEntry("b.txt", "I am B");
+        Path dummyJarPath = prepareDummyJarWith(jarEntryA,jarEntryB);
 
         List<MiniJarEntry> entries = ClasspathEntries.getEntries(dummyJarPath);
 
-        MiniJarEntry expected = new MiniJarEntry(jarEntry.path, getDigest(jarEntry.content));
-        System.out.println(expected);
-        assertThat(entries).usingFieldByFieldElementComparator().containsExactly(expected);
+        MiniJarEntry expectedA = new MiniJarEntry(jarEntryA.path, getDigest(jarEntryA.content));
+        MiniJarEntry expectedB = new MiniJarEntry(jarEntryB.path, getDigest(jarEntryB.content));
+        assertThat(entries).usingFieldByFieldElementComparator().containsExactly(expectedA,expectedB);
     }
 
     private Path prepareDummyJarWith(DummyFileEntry... entries) throws IOException {
@@ -52,15 +52,7 @@ public class ClasspathEntriesTest {
     }
 
     private String getDigest(String context) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(context.getBytes());
-        StringBuffer hexString = new StringBuffer();
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if (hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
-        }
-        return hexString.toString();
+        return ClasspathEntries.getDigest(context.getBytes());
     }
 
 

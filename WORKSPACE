@@ -32,18 +32,8 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
-load("@rules_jvm_external//:defs.bzl", "maven_install")
-
-maven_install(
-    artifacts = [
-        "junit:junit:4.13",
-    ],
-    repositories = [
-        "https://maven.google.com",
-        "https://repo1.maven.org/maven2",
-    ],
-    maven_install_json = "//:maven_install.json",
-)
+load("//:dependencies.bzl", "dependencies")
+dependencies()
 
 load("@maven//:defs.bzl", "pinned_maven_install")
 pinned_maven_install()
