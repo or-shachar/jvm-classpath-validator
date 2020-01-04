@@ -17,3 +17,12 @@ java_test(
         ":classpath",
     ],
 )
+
+
+java_test(
+    name = "classPathValidatorIT",
+    test_class = "com.bazelbuild.java.classpath.ClassPathValidatorIT",
+    runtime_deps = [
+        ":classpath",
+    ],
+)
