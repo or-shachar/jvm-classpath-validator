@@ -20,10 +20,10 @@ public class ClassPathValidatorIT {
     public void returnEmptyCollisionIfNoRecordWithSamePathWasFound() throws IOException, NoSuchAlgorithmException {
         DummyFileEntry jarEntryA = new DummyFileEntry("a.txt", "I am A");
         Path dummyJarPathA = prepareDummyJarWith(jarEntryA);
-        ClasspathValidatorJarInput jarInputA = new ClasspathValidatorJarInput("//a",dummyJarPathA.toString());
+        ClasspathValidatorJarInput jarInputA = new ClasspathValidatorJarInput("//a",dummyJarPathA);
         DummyFileEntry jarEntryB = new DummyFileEntry("b.txt", "I am B");
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
-        ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB.toString());
+        ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
         List<ClasspathCollision> collisions = ClassPathValidator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
 
@@ -34,9 +34,9 @@ public class ClassPathValidatorIT {
     public void returnEmptyCollisionIfSamePathExistButWithExactSameContent() throws IOException, NoSuchAlgorithmException {
         DummyFileEntry jarEntry = new DummyFileEntry("a.txt", "I am A");
         Path dummyJarPathA = prepareDummyJarWith(jarEntry);
-        ClasspathValidatorJarInput jarInputA = new ClasspathValidatorJarInput("//a",dummyJarPathA.toString());
+        ClasspathValidatorJarInput jarInputA = new ClasspathValidatorJarInput("//a",dummyJarPathA);
         Path dummyJarPathB = prepareDummyJarWith(jarEntry);
-        ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB.toString());
+        ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
         List<ClasspathCollision> collisions = ClassPathValidator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
 
@@ -48,10 +48,10 @@ public class ClassPathValidatorIT {
         String samePath = "file.txt";
         DummyFileEntry jarEntryA = new DummyFileEntry(samePath, "I am A");
         Path dummyJarPathA = prepareDummyJarWith(jarEntryA);
-        ClasspathValidatorJarInput jarInputA = new ClasspathValidatorJarInput("//a",dummyJarPathA.toString());
+        ClasspathValidatorJarInput jarInputA = new ClasspathValidatorJarInput("//a",dummyJarPathA);
         DummyFileEntry jarEntryB = new DummyFileEntry(samePath, "I am B");
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
-        ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB.toString());
+        ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
         List<ClasspathCollision> collisions = ClassPathValidator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
 

@@ -1,8 +1,6 @@
 package com.bazelbuild.java.classpath;
 
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class ClassPathValidator {
 
-    public static List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException, NoSuchAlgorithmException {
+    public static List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException {
         Map<String, List<InnerJarEntry>> agg = new HashMap<>();
         aggregateData(jars, agg);
         return computeCollisions(agg);
@@ -40,9 +38,9 @@ public class ClassPathValidator {
                 .count() > 1;
     }
 
-    private static void aggregateData(List<ClasspathValidatorJarInput> jars, Map<String, List<InnerJarEntry>> agg) throws IOException, NoSuchAlgorithmException {
+    private static void aggregateData(List<ClasspathValidatorJarInput> jars, Map<String, List<InnerJarEntry>> agg) throws IOException {
         for (ClasspathValidatorJarInput jar : jars) {
-            addToMap(agg, jar.label, ClasspathEntries.getEntries(Paths.get(jar.jarPath)));
+            addToMap(agg, jar.label, ClasspathEntries.getEntries(jar.jarPath));
         }
     }
 

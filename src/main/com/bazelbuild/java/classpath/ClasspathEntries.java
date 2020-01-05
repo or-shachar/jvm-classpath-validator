@@ -14,7 +14,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 public class ClasspathEntries {
-    public static List<MiniJarEntry> getEntries(Path dummyJarPath) throws IOException, NoSuchAlgorithmException {
+    public static List<MiniJarEntry> getEntries(Path dummyJarPath) throws IOException {
         JarInputStream inputStream = new JarInputStream(Files.newInputStream(dummyJarPath));
         JarEntry entry;
         List<MiniJarEntry> res = new ArrayList<>();
@@ -37,15 +37,21 @@ public class ClasspathEntries {
         return buffer.toByteArray();
     }
 
-    public static String getDigest(byte[] content) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(content);
-        StringBuffer hexString = new StringBuffer();
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if (hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
+    public static String getDigest(byte[] content)  {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(content);
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Could not get SHA-256 algorithm, should not happen. Goodbye");
+            System.exit(1);
+            return null;
         }
-        return hexString.toString();
     }
 }
