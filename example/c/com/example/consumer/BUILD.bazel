@@ -1,18 +1,19 @@
-load("@rules_java//java:defs.bzl", "java_library", "java_binary")
-load("//:classpath_validator.bzl","classpath_collision_test")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("//:classpath_validator.bzl", "classpath_collision_test")
+
 java_library(
     name = "consumer",
     srcs = ["Consumer.java"],
     deps = [
-        "//example/b/com/example/duppy",
         "//example/a/com/example/duppy",
-    ]
+        "//example/b/com/example/duppy",
+    ],
 )
 
 java_binary(
     name = "consumer_run",
-    runtime_deps = [ ":consumer"],
     main_class = "com.example.consumer.Consumer",
+    runtime_deps = [":consumer"],
 )
 
 classpath_collision_test(

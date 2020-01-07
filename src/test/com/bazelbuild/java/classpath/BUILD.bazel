@@ -4,9 +4,9 @@ java_library(
     name = "classpath",
     srcs = glob(["*.java"]),
     deps = [
+        "//src/main/com/bazelbuild/java/classpath",
         "@maven//:junit_junit",
         "@maven//:org_assertj_assertj_core",
-        "//src/main/com/bazelbuild/java/classpath:classpath",
     ],
 )
 
@@ -17,7 +17,6 @@ java_test(
         ":classpath",
     ],
 )
-
 
 java_test(
     name = "classPathValidatorIT",

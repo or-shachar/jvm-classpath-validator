@@ -1,7 +1,7 @@
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven")
 
-junit_version="4.13"
+junit_version = "4.13"
 
 def dependencies():
     maven_install(
@@ -15,4 +15,3 @@ def dependencies():
         ],
         maven_install_json = "//:maven_install.json",
     )
-

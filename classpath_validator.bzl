@@ -18,7 +18,7 @@ def _impl(ctx):
     validator_runtime_jars = ctx.attr._validator[java_common.provider].transitive_runtime_jars.to_list()
     classpath = ":".join([j.short_path for j in validator_runtime_jars])
     java_runtime = ctx.attr._jdk[java_common.JavaRuntimeInfo]
-    cmd ="{java} -cp {classpath} {main_class} {jar_files_path}\n".format(
+    cmd = "{java} -cp {classpath} {main_class} {jar_files_path}\n".format(
         java = java_runtime.java_home + "/bin/java",
         main_class = "com.bazelbuild.java.classpath.ClasspathValidatorCli",
         classpath = classpath,
@@ -31,7 +31,7 @@ def _impl(ctx):
         content = cmd,
         is_executable = True,
     )
-    runfiles = ctx.runfiles(files = validator_runtime_jars + [exec, jars_file]  +  runtime_jars + ctx.files._jdk )
+    runfiles = ctx.runfiles(files = validator_runtime_jars + [exec, jars_file] + runtime_jars + ctx.files._jdk)
     return [DefaultInfo(executable = exec, runfiles = runfiles)]
 
 classpath_collision_test = rule(
@@ -40,9 +40,9 @@ classpath_collision_test = rule(
         "target": attr.label(providers = [JavaInfo]),
         "_validator": attr.label(providers = [JavaInfo], default = "//src/main/com/bazelbuild/java/classpath"),
         "_jdk": attr.label(
-                default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
-                providers = [java_common.JavaRuntimeInfo],
-            ),
-        },
+            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
+            providers = [java_common.JavaRuntimeInfo],
+        ),
+    },
     test = True,
 )
