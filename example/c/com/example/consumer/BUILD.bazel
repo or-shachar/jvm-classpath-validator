@@ -1,5 +1,5 @@
 load("@rules_java//java:defs.bzl", "java_library", "java_binary")
-
+load("//:classpath_validator.bzl","classpath_collision_test")
 java_library(
     name = "consumer",
     srcs = ["Consumer.java"],
@@ -13,4 +13,9 @@ java_binary(
     name = "consumer_run",
     runtime_deps = [ ":consumer"],
     main_class = "com.example.consumer.Consumer",
+)
+
+classpath_collision_test(
+    name = "test_classpath",
+    target = "consumer",
 )
