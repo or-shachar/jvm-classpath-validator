@@ -2,7 +2,6 @@ package com.bazelbuild.java.classpath;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -15,29 +14,31 @@ import java.util.jar.JarInputStream;
 
 public class ClasspathEntries {
     public static List<MiniJarEntry> getEntries(Path dummyJarPath) throws IOException {
-        JarInputStream inputStream = new JarInputStream(Files.newInputStream(dummyJarPath));
-        JarEntry entry;
-        List<MiniJarEntry> res = new ArrayList<>();
-        while ((entry = inputStream.getNextJarEntry()) != null){
-            byte[] bytes = readEntry(inputStream);
-            res.add(new MiniJarEntry(entry.getName(),getDigest(bytes)));
+        try (JarInputStream inputStream = new JarInputStream(Files.newInputStream(dummyJarPath))) {
+            JarEntry entry;
+            List<MiniJarEntry> res = new ArrayList<>();
+            while ((entry = inputStream.getNextJarEntry()) != null) {
+                byte[] bytes = readEntry(inputStream);
+                res.add(new MiniJarEntry(entry.getName(), getDigest(bytes)));
+            }
+            return Collections.unmodifiableList(res);
         }
-        return Collections.unmodifiableList(res);
     }
 
     private static byte[] readEntry(JarInputStream is) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[1024];
-        while ((nRead = is.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
-        }
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            int nRead;
+            byte[] data = new byte[1024];
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
 
-        buffer.flush();
-        return buffer.toByteArray();
+            buffer.flush();
+            return buffer.toByteArray();
+        }
     }
 
-    public static String getDigest(byte[] content)  {
+    public static String getDigest(byte[] content) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(content);
