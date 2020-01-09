@@ -7,3 +7,9 @@ java_library(
     srcs = glob(["*.java"]),
     deps = [],
 )
+
+java_binary(
+    name = "classpath_run",
+    main_class = "com.bazelbuild.java.classpath.ClasspathValidatorCli",
+    runtime_deps = [":classpath"],
+)
