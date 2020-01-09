@@ -30,7 +30,7 @@ def _impl(ctx):
     )
 
     # compute runfiles
-    runfiles = ctx.runfiles(files =  [exec, jars_file] + runtime_jars).merge(ctx.attr._validator[DefaultInfo].default_runfiles)
+    runfiles = ctx.runfiles(files = [exec, jars_file] + runtime_jars).merge(ctx.attr._validator[DefaultInfo].default_runfiles)
 
     return [DefaultInfo(executable = exec, runfiles = runfiles)]
 
