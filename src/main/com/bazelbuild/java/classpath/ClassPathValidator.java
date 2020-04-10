@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class ClassPathValidator {
     private static List<String> prefixIgnore = Arrays.asList("META-INF");
-    private static List<String> suffixIgnore = Arrays.asList("LICENSE","pom.xml","BUILD.bazel");
+    private static List<String> suffixIgnore = Arrays.asList("LICENSE", "pom.xml", "BUILD.bazel", "module-info.class", "LICENSE.txt", "NOTICE");
 
     public static List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException {
         Map<String, Map<String, String>> targetsToJarEntriesToDigests = extractEntries(jars);
@@ -19,7 +19,7 @@ public class ClassPathValidator {
         Set<Pair<String, String>> pairs = allTargetsPairsIn(targetsToJarEntriesToDigests.keySet());
         return pairs.stream()
                 .map(p -> collisionsBetween(targetsToJarEntriesToDigests, p))
-                .filter(c->!c.differentEntries.isEmpty())
+                .filter(c -> !c.differentEntries.isEmpty())
                 .collect(Collectors.toList());
     }
 
@@ -54,13 +54,13 @@ public class ClassPathValidator {
         Map<String, Map<String, String>> m = new HashMap<>();
         for (ClasspathValidatorJarInput j : jars) {
             m.put(j.label, ClasspathEntries.getEntries(j.jarPath).stream()
-                    .filter(g->!ignored(g.path))
+                    .filter(g -> !ignored(g.path))
                     .collect(Collectors.toMap(MiniJarEntry::getPath, MiniJarEntry::getDigest)));
         }
         return Collections.unmodifiableMap(m);
     }
 
-    private static boolean ignored(String path){
+    private static boolean ignored(String path) {
         return prefixIgnore.stream().anyMatch(path::startsWith) ||
                 suffixIgnore.stream().anyMatch(path::endsWith);
     }
