@@ -13,22 +13,13 @@ public class ClassPathValidator {
     private static List<String> suffixIgnore = Arrays.asList("LICENSE", "pom.xml", "BUILD.bazel", "module-info.class", "LICENSE.txt", "NOTICE", "mozilla/public-suffix-list.txt", "rootdoc.txt");
 
     public static List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException {
-        Instant start = Instant.now();
         Map<String, Map<String, String>> targetsToJarEntriesToDigests = extractEntries(jars);
-        Instant end = Instant.now();
-        System.out.println("extractEntries:" + Duration.between(start, end));
-        start = Instant.now();
         List<ClasspathCollision> classpathCollisions = computeCollisions(targetsToJarEntriesToDigests);
-        end = Instant.now();
-        System.out.println("computeCollisions:" + Duration.between(start, end));
         return classpathCollisions;
     }
 
     private static List<ClasspathCollision> computeCollisions(Map<String, Map<String, String>> targetsToJarEntriesToDigests) {
-        Instant start = Instant.now();
-        Set<Pair<String, String>> pairs = allTargetsPairsIn(targetsToJarEntriesToDigests.keySet());
-        Instant end = Instant.now();
-        System.out.println("allPairs:" + Duration.between(start, end));
+        List<Pair<String, String>> pairs = allTargetsPairsIn(new ArrayList<>(targetsToJarEntriesToDigests.keySet()));
         return pairs.stream()
                 .map(p -> collisionsBetween(targetsToJarEntriesToDigests, p))
                 .filter(c -> !c.differentEntries.isEmpty())
@@ -49,13 +40,13 @@ public class ClassPathValidator {
         ).collect(Collectors.toList());
     }
 
-    private static Set<Pair<String, String>> allTargetsPairsIn(Set<String> originalSet) {
+    private static List<Pair<String, String>> allTargetsPairsIn(List<String> originalSet) {
         if (originalSet.isEmpty())
-            return Collections.emptySet();
-        String head = originalSet.stream().findFirst().get();
-        Set<String> tail = originalSet.stream().skip(1).collect(Collectors.toSet());
+            return Collections.emptyList();
+        String head = originalSet.get(0);
+        List<String> tail = originalSet.subList(1, originalSet.size());
 
-        Set<Pair<String, String>> currentPairs = tail.stream().map(s -> new Pair<>(head, s)).collect(Collectors.toSet());
+        List<Pair<String, String>> currentPairs = new ArrayList<>(tail.stream().map(s -> new Pair<>(head, s)).collect(Collectors.toList()));
 
         currentPairs.addAll(allTargetsPairsIn(tail));
         return currentPairs;
