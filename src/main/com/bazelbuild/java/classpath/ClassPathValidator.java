@@ -1,65 +1,57 @@
 package com.bazelbuild.java.classpath;
 
+import javafx.util.Pair;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClassPathValidator {
-
     public static List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException {
-        Map<String, List<InnerJarEntry>> agg = new HashMap<>();
-        aggregateData(jars, agg);
-        return computeCollisions(agg);
+        Map<String, Map<String, String>> targetsToJarEntriesToDigests = extractEntries(jars);
+        return computeCollisionsAlt(targetsToJarEntriesToDigests);
     }
 
-    private static List<ClasspathCollision> computeCollisions(Map<String, List<InnerJarEntry>> agg) {
-        return agg.entrySet().stream()
-                .filter(e-> e.getValue().size()>1)
-                .filter(e-> differentContent(e.getValue()))
-                .map(ClassPathValidator::toCollision)
+    private static List<ClasspathCollision> computeCollisionsAlt(Map<String, Map<String, String>> targetsToJarEntriesToDigests) {
+        Set<Pair<String, String>> pairs = allTargetsPairsIn(targetsToJarEntriesToDigests.keySet());
+        return pairs.stream()
+                .map(p -> collisionsBetween(targetsToJarEntriesToDigests, p))
+                .filter(c->!c.differentEntries.isEmpty())
                 .collect(Collectors.toList());
     }
 
-    private static ClasspathCollision toCollision(Map.Entry<String, List<InnerJarEntry>> entriesWithCollision) {
-        String path = entriesWithCollision.getKey();
-        return new ClasspathCollision(path,
-                entriesWithCollision.getValue().stream()
-                .map(e->e.sourceLabel)
-                .collect(Collectors.toList()));
+    private static ClasspathCollision collisionsBetween(Map<String, Map<String, String>> targetsToJarEntriesToDigests,
+                                                        Pair<String, String> targetsPair) {
+        String target1 = targetsPair.getKey();
+        String target2 = targetsPair.getValue();
+        List<String> collisions = findCollisionsIn(targetsToJarEntriesToDigests.get(target1), targetsToJarEntriesToDigests.get(target2));
+        return new ClasspathCollision(target1, target2, collisions);
     }
 
-    private static boolean differentContent(List<InnerJarEntry> entriesWithSamePath) {
-        return entriesWithSamePath.stream()
-                .map(e->e.digest)
-                .distinct()
-                .count() > 1;
+    private static List<String> findCollisionsIn(Map<String, String> jar1EntriesToDigest, Map<String, String> jar2EntriesToDigest) {
+        return jar1EntriesToDigest.keySet().stream().filter(f ->
+                jar2EntriesToDigest.containsKey(f) && !jar1EntriesToDigest.get(f).equals(jar2EntriesToDigest.get(f))
+        ).collect(Collectors.toList());
     }
 
-    private static void aggregateData(List<ClasspathValidatorJarInput> jars, Map<String, List<InnerJarEntry>> agg) throws IOException {
-        for (ClasspathValidatorJarInput jar : jars) {
-            addToMap(agg, jar.label, ClasspathEntries.getEntries(jar.jarPath));
+    private static Set<Pair<String, String>> allTargetsPairsIn(Set<String> originalSet) {
+        if (originalSet.isEmpty())
+            return Collections.emptySet();
+        String head = originalSet.stream().findFirst().get();
+        Set<String> tail = originalSet.stream().skip(1).collect(Collectors.toSet());
+
+        Set<Pair<String, String>> currentPairs = tail.stream().map(s -> new Pair<>(head, s)).collect(Collectors.toSet());
+
+        currentPairs.addAll(allTargetsPairsIn(tail));
+        return currentPairs;
+    }
+
+
+    private static Map<String, Map<String, String>> extractEntries(List<ClasspathValidatorJarInput> jars) throws IOException {
+        Map<String, Map<String, String>> m = new HashMap<>();
+        for (ClasspathValidatorJarInput j : jars) {
+            m.put(j.label, ClasspathEntries.getEntries(j.jarPath).stream().collect(Collectors.toMap(MiniJarEntry::getPath, MiniJarEntry::getDigest)));
         }
-    }
-
-    private static void addToMap(Map<String, List<InnerJarEntry>> agg, String label, List<MiniJarEntry> entries) {
-        List<InnerJarEntry> current;
-        for (MiniJarEntry entry : entries) {
-            current = agg.getOrDefault(entry.path, new ArrayList<>());
-            current.add(new InnerJarEntry(label,entry.digest));
-            agg.put(entry.path, current);
-        }
-    }
-
-    private static class InnerJarEntry {
-        final String sourceLabel;
-        final String digest;
-
-        private InnerJarEntry(String sourceLabel, String digest) {
-            this.sourceLabel = sourceLabel;
-            this.digest = digest;
-        }
+        return Collections.unmodifiableMap(m);
     }
 }

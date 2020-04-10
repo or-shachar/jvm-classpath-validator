@@ -42,11 +42,10 @@ public class ClasspathValidatorCli {
 
     private static void printCollisions(List<ClasspathCollision> collisions) {
         for (ClasspathCollision c : collisions) {
-            System.out.println(String.format("[%s]:", c.path));
-            c.targets.forEach(t -> System.out.println("\t " + t));
+            System.out.println(String.format("[%s]:", c.targets));
+            c.differentEntries.forEach(e -> System.out.println("\t " + e));
             System.out.println();
         }
-
     }
 
     private static ClasspathValidatorJarInput toInput(String line) {

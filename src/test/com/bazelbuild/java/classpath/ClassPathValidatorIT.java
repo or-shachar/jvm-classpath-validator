@@ -3,13 +3,14 @@ package com.bazelbuild.java.classpath;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import static com.bazelbuild.java.classpath.ClassPathValidatorTestingUtils.prepareDummyJarWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.bazelbuild.java.classpath.ClassPathValidatorTestingUtils.prepareDummyJarWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -55,7 +56,7 @@ public class ClassPathValidatorIT {
 
         List<ClasspathCollision> collisions = ClassPathValidator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
 
-        ClasspathCollision expected = new ClasspathCollision(samePath,Arrays.asList(jarInputA.label,jarInputB.label));
+        ClasspathCollision expected = new ClasspathCollision(jarInputA.label,jarInputB.label,Arrays.asList(samePath));
         assertThat(collisions).usingFieldByFieldElementComparator().contains(expected);
     }
 }

@@ -14,6 +14,7 @@ import static com.bazelbuild.java.classpath.ClassPathValidatorTestingUtils.prepa
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+@SuppressWarnings("ALL")
 @RunWith(JUnit4.class)
 public class ClasspathValidatorCliIT {
     @Test

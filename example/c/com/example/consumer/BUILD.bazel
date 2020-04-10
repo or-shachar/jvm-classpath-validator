@@ -17,6 +17,7 @@ java_binary(
 )
 
 classpath_collision_test(
-    name = "test_classpath",
+    name = "test_classpath_should_fail",
     target = "consumer",
+    tags = ["manual"],
 )

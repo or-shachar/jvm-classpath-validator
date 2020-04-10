@@ -9,6 +9,14 @@ public class MiniJarEntry {
         this.digest = digest;
     }
 
+    public String getPath(){
+        return path;
+    }
+
+    public String getDigest(){
+        return digest;
+    }
+
     @Override
     public String toString() {
         return String.format("MiniJarEntry(path=%s, digest=%s", this.path, this.digest);
