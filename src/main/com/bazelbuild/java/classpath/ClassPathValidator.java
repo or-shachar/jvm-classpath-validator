@@ -3,6 +3,8 @@ package com.bazelbuild.java.classpath;
 import javafx.util.Pair;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -11,12 +13,22 @@ public class ClassPathValidator {
     private static List<String> suffixIgnore = Arrays.asList("LICENSE", "pom.xml", "BUILD.bazel", "module-info.class", "LICENSE.txt", "NOTICE", "mozilla/public-suffix-list.txt", "rootdoc.txt");
 
     public static List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException {
+        Instant start = Instant.now();
         Map<String, Map<String, String>> targetsToJarEntriesToDigests = extractEntries(jars);
-        return computeCollisionsAlt(targetsToJarEntriesToDigests);
+        Instant end = Instant.now();
+        System.out.println("extractEntries:" + Duration.between(start, end));
+        start = Instant.now();
+        List<ClasspathCollision> classpathCollisions = computeCollisions(targetsToJarEntriesToDigests);
+        end = Instant.now();
+        System.out.println("computeCollisions:" + Duration.between(start, end));
+        return classpathCollisions;
     }
 
-    private static List<ClasspathCollision> computeCollisionsAlt(Map<String, Map<String, String>> targetsToJarEntriesToDigests) {
+    private static List<ClasspathCollision> computeCollisions(Map<String, Map<String, String>> targetsToJarEntriesToDigests) {
+        Instant start = Instant.now();
         Set<Pair<String, String>> pairs = allTargetsPairsIn(targetsToJarEntriesToDigests.keySet());
+        Instant end = Instant.now();
+        System.out.println("allPairs:" + Duration.between(start, end));
         return pairs.stream()
                 .map(p -> collisionsBetween(targetsToJarEntriesToDigests, p))
                 .filter(c -> !c.differentEntries.isEmpty())
