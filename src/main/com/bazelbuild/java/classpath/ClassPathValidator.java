@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class ClassPathValidator {
     private static List<String> prefixIgnore = Arrays.asList("META-INF");
-    private static List<String> suffixIgnore = Arrays.asList("LICENSE", "pom.xml", "BUILD.bazel", "module-info.class", "LICENSE.txt", "NOTICE");
+    private static List<String> suffixIgnore = Arrays.asList("LICENSE", "pom.xml", "BUILD.bazel", "module-info.class", "LICENSE.txt", "NOTICE", "mozilla/public-suffix-list.txt", "rootdoc.txt");
 
     public static List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException {
         Map<String, Map<String, String>> targetsToJarEntriesToDigests = extractEntries(jars);
