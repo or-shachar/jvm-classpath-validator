@@ -54,3 +54,10 @@ Found 1 collisions
 	 com/example/duppy/Duppy.class
 
 ```
+
+
+## Default ignore list
+I allowed myself to add few default prefixes / suffixes to ignore.
+You can find them [here](https://github.com/or-shachar/jvm-classpath-validator/blob/master/src/main/com/bazelbuild/java/classpath/ClassPathValidator.java#L11).
+If you feel like the defaults should change - please kindly open an issue.
+
