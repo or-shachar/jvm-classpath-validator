@@ -1,4 +1,4 @@
-# Bazel classpath_collision_test
+# Bazel classpath_collision_test [![Build Status](https://api.cirrus-ci.com/github/or-shachar/jvm-classpath-validator.svg)](https://cirrus-ci.com/github/or-shachar/jvm-classpath-validator/master)
 
 
 ## Overview
@@ -10,8 +10,8 @@ Test and report tool to validate classpath collision cases
     # WORKSPACE file
     load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
     
-    jvm_classpath_validator_version="78eff5bf1dac40477b565e45a0ca83566ed5fd30" # update this as needed
-    jvm_classpath_validator_sha256="e1ea8c339f864b80e80e4e31785771332ffadf6754a06d860d43ab9c7622b4a8" #update this as needed
+    jvm_classpath_validator_version="c2656cbc6798e558414b17ffac01c9734d645910" # update this as needed
+    jvm_classpath_validator_sha256="577e538c1ccdf3b3828abf7cd67fe93b58190cad26a8f81c12a5aa9f24a2f029" # update this as needed
     http_archive(
         name = "jvm_classpath_validator",
         url = "https://github.com/or-shachar/jvm-classpath-validator/archive/%s.tar.gz" % jvm_classpath_validator_version,
