@@ -33,5 +33,3 @@ java_test(
         ":classpath",
     ],
 )
-
-
