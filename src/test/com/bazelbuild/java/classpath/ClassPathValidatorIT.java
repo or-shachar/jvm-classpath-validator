@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.bazelbuild.java.classpath.ClassPathValidatorTestingUtils.prepareDummyJarWith;
@@ -17,6 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("DuplicatedCode")
 @RunWith(JUnit4.class)
 public class ClassPathValidatorIT {
+
+    ClassPathValidator validator = new ClassPathValidator(Collections.emptyList(),Collections.emptyList());
+
     @Test
     public void returnEmptyCollisionIfNoRecordWithSamePathWasFound() throws IOException, NoSuchAlgorithmException {
         DummyFileEntry jarEntryA = new DummyFileEntry("a.txt", "I am A");
@@ -26,7 +30,7 @@ public class ClassPathValidatorIT {
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        List<ClasspathCollision> collisions = ClassPathValidator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
+        List<ClasspathCollision> collisions = validator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
 
         assertThat(collisions).isEmpty();
     }
@@ -39,7 +43,7 @@ public class ClassPathValidatorIT {
         Path dummyJarPathB = prepareDummyJarWith(jarEntry);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        List<ClasspathCollision> collisions = ClassPathValidator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
+        List<ClasspathCollision> collisions = validator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
 
         assertThat(collisions).isEmpty();
     }
@@ -54,7 +58,7 @@ public class ClassPathValidatorIT {
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        List<ClasspathCollision> collisions = ClassPathValidator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
+        List<ClasspathCollision> collisions = validator.collisionsIn(Arrays.asList(jarInputA,jarInputB));
 
         ClasspathCollision expected = new ClasspathCollision(jarInputA.label,jarInputB.label,Arrays.asList(samePath));
         assertThat(collisions).usingFieldByFieldElementComparator().contains(expected);

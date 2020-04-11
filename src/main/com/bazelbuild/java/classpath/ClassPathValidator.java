@@ -1,7 +1,5 @@
 package com.bazelbuild.java.classpath;
 
-import javafx.util.Pair;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,7 +23,7 @@ public class ClassPathValidator {
     }
 
     private List<ClasspathCollision> computeCollisions(Map<String, Map<String, String>> targetsToJarEntriesToDigests) {
-        List<Pair<String, String>> pairs = allTargetsPairsIn(new ArrayList<>(targetsToJarEntriesToDigests.keySet()));
+        List<TargetsPair> pairs = allTargetsPairsIn(new ArrayList<>(targetsToJarEntriesToDigests.keySet()));
         return pairs.stream()
                 .map(p -> collisionsBetween(targetsToJarEntriesToDigests, p))
                 .filter(c -> !c.differentEntries.isEmpty())
@@ -33,9 +31,9 @@ public class ClassPathValidator {
     }
 
     private ClasspathCollision collisionsBetween(Map<String, Map<String, String>> targetsToJarEntriesToDigests,
-                                                 Pair<String, String> targetsPair) {
-        String target1 = targetsPair.getKey();
-        String target2 = targetsPair.getValue();
+                                                 TargetsPair targetsPair) {
+        String target1 = targetsPair.target1;
+        String target2 = targetsPair.target2;
         List<String> collisions = findCollisionsIn(targetsToJarEntriesToDigests.get(target1), targetsToJarEntriesToDigests.get(target2));
         return new ClasspathCollision(target1, target2, collisions);
     }
@@ -46,12 +44,12 @@ public class ClassPathValidator {
         ).collect(Collectors.toList());
     }
 
-    private List<Pair<String, String>> allTargetsPairsIn(List<String> originalSet) {
+    private List<TargetsPair> allTargetsPairsIn(List<String> originalSet) {
         if (originalSet.isEmpty())
             return Collections.emptyList();
         String head = originalSet.get(0);
         List<String> tail = originalSet.subList(1, originalSet.size());
-        List<Pair<String, String>> currentPairs = tail.stream().map(s -> new Pair<>(head, s)).collect(Collectors.toList());
+        List<TargetsPair> currentPairs = tail.stream().map(s -> new TargetsPair(head, s)).collect(Collectors.toList());
         currentPairs.addAll(allTargetsPairsIn(tail));
         return currentPairs;
     }
@@ -70,5 +68,15 @@ public class ClassPathValidator {
     private boolean ignored(String path) {
         return ignorePrefixes.stream().anyMatch(path::startsWith) ||
                 ignoreSuffixes.stream().anyMatch(path::endsWith);
+    }
+
+    private class TargetsPair{
+        final String target1;
+        final String target2;
+
+        private TargetsPair(String target1, String target2) {
+            this.target1 = target1;
+            this.target2 = target2;
+        }
     }
 }
