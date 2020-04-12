@@ -34,7 +34,7 @@ Test and report tool to validate classpath collision cases
         ignore_suffixes = ["example_suffix"], #optional
     )
     ```
-3. Run `bazel test //path/to:target:test_classpath`
+3. Run `bazel test //path/to/package:test_classpath`
 
 ### How does the test work?
 * The test would inspect the different jar entries of any jar in runtime closure of given `target`
