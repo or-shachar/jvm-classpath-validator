@@ -10,8 +10,8 @@ Test and report tool to validate classpath collision cases
     # WORKSPACE file
     load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
     
-    jvm_classpath_validator_version="c2656cbc6798e558414b17ffac01c9734d645910" # update this as needed
-    jvm_classpath_validator_sha256="577e538c1ccdf3b3828abf7cd67fe93b58190cad26a8f81c12a5aa9f24a2f029" # update this as needed
+    jvm_classpath_validator_version="fd8bd402e43396cc726d222a3f4bbb6f0f103f91" # update this as needed
+    jvm_classpath_validator_sha256="bead7f1841837270d8218233e638dd56eecc98e4354b7cdf52d0e15a23e7c425" # update this as needed
     http_archive(
         name = "jvm_classpath_validator",
         url = "https://github.com/or-shachar/jvm-classpath-validator/archive/%s.tar.gz" % jvm_classpath_validator_version,
