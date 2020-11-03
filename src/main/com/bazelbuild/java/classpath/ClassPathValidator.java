@@ -56,13 +56,16 @@ public class ClassPathValidator {
 
 
     private Map<String, Map<String, String>> extractEntries(List<ClasspathValidatorJarInput> jars) throws IOException {
-        Map<String, Map<String, String>> m = new HashMap<>();
+        Map<String, Map<String, String>> labelToEntriesMap = new HashMap<>();
         for (ClasspathValidatorJarInput j : jars) {
-            m.put(j.label, ClasspathEntries.getEntries(j.jarPath).stream()
+            List<MiniJarEntry> jarEntries = ClasspathEntries.getEntries(j.jarPath);
+            Map<String, String> classpathToDigest = new HashMap<>();
+            jarEntries.stream()
                     .filter(g -> !ignored(g.path))
-                    .collect(Collectors.toMap(MiniJarEntry::getPath, MiniJarEntry::getDigest)));
+                    .forEach(e-> classpathToDigest.put(e.getPath(),e.getDigest()));
+            labelToEntriesMap.put(j.label, classpathToDigest);
         }
-        return Collections.unmodifiableMap(m);
+        return Collections.unmodifiableMap(labelToEntriesMap);
     }
 
     private boolean ignored(String path) {
