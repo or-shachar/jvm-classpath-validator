@@ -30,7 +30,13 @@ public class ClasspathValidatorCliIT {
         Path inputFile = prepareInputFileWith(jarInputA,jarInputB);
         Path ignorePrefixFile = Files.createTempFile("ignore_prefix",".txt");
         Path ignoreSuffixFile = Files.createTempFile("ignore_suffix",".txt");
-        String[] args = {inputFile.toString(), ignorePrefixFile.toString(), ignoreSuffixFile.toString()};
+        Path includePrefixFile = Files.createTempFile("include_prefix",".txt");
+        Path includeSuffixFile = Files.createTempFile("inclue_suffix",".txt");
+        String[] args = {
+                inputFile.toString(),
+                ignorePrefixFile.toString(), ignoreSuffixFile.toString(),
+                includePrefixFile.toString(), includeSuffixFile.toString()
+        };
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isInstanceOf(RuntimeException.class).hasMessageContaining("1 collisions");
@@ -39,7 +45,7 @@ public class ClasspathValidatorCliIT {
     @Test
     public void throwIllegalArgumentForNonReadableJarsFilePath() throws IOException {
         Path inputFile = Files.createTempDirectory("my-temp").resolve("non-existing.txt");
-        String[] args = {inputFile.toString(), inputFile.toString() ,inputFile.toString()};
+        String[] args = {inputFile.toString(), inputFile.toString(), inputFile.toString(), inputFile.toString(), inputFile.toString()};
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("is not readable");
@@ -67,7 +73,13 @@ public class ClasspathValidatorCliIT {
         Path inputFile = prepareInputFileWith(jarInputA,jarInputB);
         Path ignorePrefixFile = Files.createTempFile("ignore_prefix",".txt");
         Path ignoreSuffixFile = Files.createTempFile("ignore_suffix",".txt");
-        String[] args = {inputFile.toString(), ignorePrefixFile.toString(), ignoreSuffixFile.toString()};
+        Path includePrefixFile = Files.createTempFile("include_prefix",".txt");
+        Path includeSuffixFile = Files.createTempFile("include_suffix",".txt");
+        String[] args = {
+                inputFile.toString(),
+                ignorePrefixFile.toString(), ignoreSuffixFile.toString(),
+                includePrefixFile.toString(), includeSuffixFile.toString(),
+        };
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("is not readable");
@@ -82,10 +94,16 @@ public class ClasspathValidatorCliIT {
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        Path inputFile = prepareInputFileWith(jarInputA,jarInputB);
+        Path inputFile = prepareInputFileWith(jarInputA, jarInputB);
         Path ignorePrefixFile = Files.createTempFile("ignore_prefix",".txt");
         Path ignoreSuffixFile = Files.createTempFile("ignore_suffix",".txt");
-        String[] args = {inputFile.toString(), ignorePrefixFile.toString(), ignoreSuffixFile.toString()};
+        Path includePrefixFile = Files.createTempFile("include_prefix",".txt");
+        Path includeSuffixFile = Files.createTempFile("include_suffix",".txt");
+        String[] args = {
+                inputFile.toString(),
+                ignorePrefixFile.toString(), ignoreSuffixFile.toString(),
+                includePrefixFile.toString(), includeSuffixFile.toString(),
+        };
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isNull();

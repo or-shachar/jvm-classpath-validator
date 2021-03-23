@@ -12,13 +12,17 @@ public class ClasspathValidatorCli {
         System.out.println("====================");
         System.out.println("Classpath Collision Finder");
         System.out.println("====================");
-        if (args.length < 3) {
-            throw new IllegalArgumentException("Usage: ClasspathValidatorCli <targets_to_jar_file> <ignore_prefixes_file> <ignore_suffixes_file>");
+
+        if (args.length < 5) {
+            throw new IllegalArgumentException("Usage: ClasspathValidatorCli <targets_to_jar_file> <ignore_prefixes_file> <ignore_suffixes_file> <include_prefixes_file> <include_suffixes_file>");
         }
+
         List<String> labelsToJarsPaths = readInputLines(args[0]);
         List<String> ignorePrefixes = readInputLines(args[1]);
         List<String> ignoreSuffixes = readInputLines(args[2]);
-        ClassPathValidator validator = new ClassPathValidator(ignorePrefixes, ignoreSuffixes);
+        List<String> includePrefixes = readInputLines(args[3]);
+        List<String> includeSuffixes = readInputLines(args[4]);
+        ClassPathValidator validator = new ClassPathValidator(ignorePrefixes, ignoreSuffixes, includePrefixes, includeSuffixes);
         List<ClasspathValidatorJarInput> jars = labelsToJarsPaths.stream()
                 .map(ClasspathValidatorCli::toInput)
                 .collect(Collectors.toList());
@@ -34,7 +38,6 @@ public class ClasspathValidatorCli {
         if (!collisions.isEmpty()) {
             throw new RuntimeException(exceptionCountPrint);
         }
-
     }
 
     private static List<String> readInputLines(String filePath) throws IOException {
