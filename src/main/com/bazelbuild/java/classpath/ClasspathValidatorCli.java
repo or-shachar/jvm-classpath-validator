@@ -18,7 +18,7 @@ public class ClasspathValidatorCli {
         List<String> labelsToJarsPaths = cliArgs.getJarTargets();
         List<String> ignorePrefixes = cliArgs.getIgnorePrefix();
         List<String> ignoreSuffixes = cliArgs.getIgnoreSuffix();
-        List<String> includePrefixes = cliArgs.getIncludeSuffix();
+        List<String> includePrefixes = cliArgs.getIncludePrefix();
         List<String> includeSuffixes = cliArgs.getIncludeSuffix();
 
         ClassPathValidator validator = new ClassPathValidator(ignorePrefixes, ignoreSuffixes, includePrefixes, includeSuffixes);
