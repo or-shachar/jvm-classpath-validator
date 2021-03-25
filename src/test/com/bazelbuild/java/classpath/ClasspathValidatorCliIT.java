@@ -5,10 +5,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.bazelbuild.java.classpath.ClassPathValidatorTestingUtils.prepareDummyJarWith;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,14 +23,13 @@ public class ClasspathValidatorCliIT {
         DummyFileEntry jarEntryA = new DummyFileEntry(samePath, "I am A");
         Path dummyJarPathA = prepareDummyJarWith(jarEntryA);
         ClasspathValidatorJarInput jarInputA = new ClasspathValidatorJarInput("//a",dummyJarPathA);
+
         DummyFileEntry jarEntryB = new DummyFileEntry(samePath, "I am B");
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        Path inputFile = prepareInputFileWith(jarInputA,jarInputB);
-        Path ignorePrefixFile = Files.createTempFile("ignore_prefix",".txt");
-        Path ignoreSuffixFile = Files.createTempFile("ignore_suffix",".txt");
-        String[] args = {inputFile.toString(), ignorePrefixFile.toString(), ignoreSuffixFile.toString()};
+        String[] args = getJarTargetsParameter(jarInputA, jarInputB);
+
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isInstanceOf(RuntimeException.class).hasMessageContaining("1 collisions");
@@ -39,18 +38,10 @@ public class ClasspathValidatorCliIT {
     @Test
     public void throwIllegalArgumentForNonReadableJarsFilePath() throws IOException {
         Path inputFile = Files.createTempDirectory("my-temp").resolve("non-existing.txt");
-        String[] args = {inputFile.toString(), inputFile.toString() ,inputFile.toString()};
+        String[] args = {"--jar-targets=" + inputFile.toString()};
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("is not readable");
-    }
-
-    @Test
-    public void throwIllegalArgumentForMissingArguments() throws IOException {
-        String[] args = {};
-        Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
-
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Usage: ");
+        assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Illegal line in jars file");
     }
 
     @Test
@@ -64,10 +55,7 @@ public class ClasspathValidatorCliIT {
         Files.delete(dummyJarPathB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        Path inputFile = prepareInputFileWith(jarInputA,jarInputB);
-        Path ignorePrefixFile = Files.createTempFile("ignore_prefix",".txt");
-        Path ignoreSuffixFile = Files.createTempFile("ignore_suffix",".txt");
-        String[] args = {inputFile.toString(), ignorePrefixFile.toString(), ignoreSuffixFile.toString()};
+        String[] args = getJarTargetsParameter(jarInputA, jarInputB);
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("is not readable");
@@ -82,21 +70,19 @@ public class ClasspathValidatorCliIT {
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        Path inputFile = prepareInputFileWith(jarInputA,jarInputB);
-        Path ignorePrefixFile = Files.createTempFile("ignore_prefix",".txt");
-        Path ignoreSuffixFile = Files.createTempFile("ignore_suffix",".txt");
-        String[] args = {inputFile.toString(), ignorePrefixFile.toString(), ignoreSuffixFile.toString()};
+        String[] args = getJarTargetsParameter(jarInputA, jarInputB);
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isNull();
     }
 
-    private Path prepareInputFileWith(ClasspathValidatorJarInput... jarsInput) throws IOException {
-        Path inputFile = Files.createTempFile("jarFiles",".txt");
-        for(ClasspathValidatorJarInput input:jarsInput){
-            String line = String.format("%s %s\n", input.label,input.jarPath.toString());
-            Files.write(inputFile,line.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+    private String[] getJarTargetsParameter(ClasspathValidatorJarInput ...jarInputs) {
+        List<String> args = new ArrayList<>();
+
+        for (ClasspathValidatorJarInput jarInput: jarInputs) {
+            args.add(String.format("--jar-targets=%s %s", jarInput.label, jarInput.jarPath.toString()));
         }
-        return inputFile;
+
+        return args.toArray(new String[args.size()]);
     }
 }

@@ -32,13 +32,16 @@ Test and report tool to validate classpath collision cases
         target = "foo",
         ignore_prefixes = ["example_prefix"], #optional
         ignore_suffixes = ["example_suffix"], #optional
+        include_prefixes = ["example_prefix"], #optional
+        include_suffixes = ["example_suffix"], #optional
     )
     ```
 3. Run `bazel test //path/to/package:test_classpath`
 
 ### How does the test work?
 * The test would inspect the different jar entries of any jar in runtime closure of given `target`
-* The test would ignore entries with given suffix or prefixes. 
+* The test would ignore entries with given prefixes or suffix and look only at entries that match the provided
+prefixes or suffixes (or all entries if the `include_prefix` and `include_suffixes` are not provided)
 * If same entry was found in two places with different content (digest based) the test would fail and a report would be emitted.
 
 
@@ -55,6 +58,9 @@ Found 1 collisions
 
 ```
 
+##ignore_ vs include_ parameters
+The test will perform the filtering out of all entries from JARs before looking at what to include, i.e.
+if an entry from a JAR matches both `ignore_` and `include_` pattern, then `ignore_` will take precedence.
 
 ## Default ignore list
 I allowed myself to add few default prefixes / suffixes to ignore.

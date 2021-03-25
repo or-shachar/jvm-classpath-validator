@@ -12,13 +12,16 @@ public class ClasspathValidatorCli {
         System.out.println("====================");
         System.out.println("Classpath Collision Finder");
         System.out.println("====================");
-        if (args.length < 3) {
-            throw new IllegalArgumentException("Usage: ClasspathValidatorCli <targets_to_jar_file> <ignore_prefixes_file> <ignore_suffixes_file>");
-        }
-        List<String> labelsToJarsPaths = readInputLines(args[0]);
-        List<String> ignorePrefixes = readInputLines(args[1]);
-        List<String> ignoreSuffixes = readInputLines(args[2]);
-        ClassPathValidator validator = new ClassPathValidator(ignorePrefixes, ignoreSuffixes);
+
+        ClasspathValidatorArguments cliArgs = new ClasspathValidatorArguments(args);
+
+        List<String> labelsToJarsPaths = cliArgs.getJarTargets();
+        List<String> ignorePrefixes = cliArgs.getIgnorePrefix();
+        List<String> ignoreSuffixes = cliArgs.getIgnoreSuffix();
+        List<String> includePrefixes = cliArgs.getIncludePrefix();
+        List<String> includeSuffixes = cliArgs.getIncludeSuffix();
+
+        ClassPathValidator validator = new ClassPathValidator(ignorePrefixes, ignoreSuffixes, includePrefixes, includeSuffixes);
         List<ClasspathValidatorJarInput> jars = labelsToJarsPaths.stream()
                 .map(ClasspathValidatorCli::toInput)
                 .collect(Collectors.toList());
@@ -34,16 +37,6 @@ public class ClasspathValidatorCli {
         if (!collisions.isEmpty()) {
             throw new RuntimeException(exceptionCountPrint);
         }
-
-    }
-
-    private static List<String> readInputLines(String filePath) throws IOException {
-        Path targetsToJarsFile = asReadablePath(filePath);
-        return Files.readAllLines(targetsToJarsFile).stream()
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .filter(s -> !s.startsWith("#"))
-                .collect(Collectors.toList());
     }
 
     private static void printCollisions(List<ClasspathCollision> collisions) {

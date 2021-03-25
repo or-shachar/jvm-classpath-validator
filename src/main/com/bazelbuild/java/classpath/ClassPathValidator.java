@@ -11,10 +11,14 @@ public class ClassPathValidator {
 
     private final List<String> ignorePrefixes;
     private final List<String> ignoreSuffixes;
+    private final List<String> includePrefixes;
+    private final List<String> includeSuffixes;
 
-    public ClassPathValidator(List<String> ignorePrefixes, List<String> ignoreSuffixes) {
+    public ClassPathValidator(List<String> ignorePrefixes, List<String> ignoreSuffixes, List<String> includePrefixes, List<String> includeSuffixes) {
         this.ignorePrefixes = Stream.concat(ignorePrefixes.stream(), prefixIgnoreDefaults.stream()).collect(Collectors.toList());
         this.ignoreSuffixes = Stream.concat(ignoreSuffixes.stream(), suffixIgnoreDefaults.stream()).collect(Collectors.toList());
+        this.includePrefixes = includePrefixes;
+        this.includeSuffixes = includeSuffixes;
     }
 
     List<ClasspathCollision> collisionsIn(List<ClasspathValidatorJarInput> jars) throws IOException {
@@ -60,17 +64,32 @@ public class ClassPathValidator {
         for (ClasspathValidatorJarInput j : jars) {
             List<MiniJarEntry> jarEntries = ClasspathEntries.getEntries(j.jarPath);
             Map<String, String> classpathToDigest = new HashMap<>();
-            jarEntries.stream()
-                    .filter(g -> !ignored(g.path))
-                    .forEach(e-> classpathToDigest.put(e.getPath(),e.getDigest()));
+
+            Stream<MiniJarEntry> jarEntryStream = jarEntries.stream()
+                    .filter(g -> !ignored(g.path));
+
+            if (!this.includePrefixes.isEmpty() || !this.includeSuffixes.isEmpty()) {
+                jarEntryStream = jarEntryStream.filter(g -> included(g.path));
+            }
+
+            jarEntryStream.forEach(e-> classpathToDigest.put(e.getPath(),e.getDigest()));
+
             labelToEntriesMap.put(j.label, classpathToDigest);
         }
         return Collections.unmodifiableMap(labelToEntriesMap);
     }
 
     private boolean ignored(String path) {
-        return ignorePrefixes.stream().anyMatch(path::startsWith) ||
-                ignoreSuffixes.stream().anyMatch(path::endsWith);
+        return matchSuffixOrPrefix(path, this.ignorePrefixes, this.ignoreSuffixes);
+    }
+
+    private boolean included(String path) {
+        return matchSuffixOrPrefix(path, this.includePrefixes, this.includeSuffixes);
+    }
+
+    private boolean matchSuffixOrPrefix(String path, List<String> prefixes, List<String> suffixes) {
+        return prefixes.stream().anyMatch(path::startsWith) ||
+                suffixes.stream().anyMatch(path::endsWith);
     }
 
     private class TargetsPair{
