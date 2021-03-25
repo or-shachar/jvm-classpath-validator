@@ -33,3 +33,11 @@ java_test(
         ":classpath",
     ],
 )
+
+java_test(
+    name = "classpathValidatorArguments",
+    test_class = "com.bazelbuild.java.classpath.ClasspathValidatorArgumentsTest",
+    runtime_deps = [
+        ":classpath",
+    ],
+)

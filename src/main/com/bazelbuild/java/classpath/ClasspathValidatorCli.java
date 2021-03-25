@@ -13,15 +13,14 @@ public class ClasspathValidatorCli {
         System.out.println("Classpath Collision Finder");
         System.out.println("====================");
 
-        if (args.length < 5) {
-            throw new IllegalArgumentException("Usage: ClasspathValidatorCli <targets_to_jar_file> <ignore_prefixes_file> <ignore_suffixes_file> <include_prefixes_file> <include_suffixes_file>");
-        }
+        ClasspathValidatorArguments cliArgs = new ClasspathValidatorArguments(args);
 
-        List<String> labelsToJarsPaths = readInputLines(args[0]);
-        List<String> ignorePrefixes = readInputLines(args[1]);
-        List<String> ignoreSuffixes = readInputLines(args[2]);
-        List<String> includePrefixes = readInputLines(args[3]);
-        List<String> includeSuffixes = readInputLines(args[4]);
+        List<String> labelsToJarsPaths = cliArgs.getJarTargets();
+        List<String> ignorePrefixes = cliArgs.getIgnorePrefix();
+        List<String> ignoreSuffixes = cliArgs.getIgnoreSuffix();
+        List<String> includePrefixes = cliArgs.getIncludeSuffix();
+        List<String> includeSuffixes = cliArgs.getIncludeSuffix();
+
         ClassPathValidator validator = new ClassPathValidator(ignorePrefixes, ignoreSuffixes, includePrefixes, includeSuffixes);
         List<ClasspathValidatorJarInput> jars = labelsToJarsPaths.stream()
                 .map(ClasspathValidatorCli::toInput)
@@ -38,15 +37,6 @@ public class ClasspathValidatorCli {
         if (!collisions.isEmpty()) {
             throw new RuntimeException(exceptionCountPrint);
         }
-    }
-
-    private static List<String> readInputLines(String filePath) throws IOException {
-        Path targetsToJarsFile = asReadablePath(filePath);
-        return Files.readAllLines(targetsToJarsFile).stream()
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .filter(s -> !s.startsWith("#"))
-                .collect(Collectors.toList());
     }
 
     private static void printCollisions(List<ClasspathCollision> collisions) {
