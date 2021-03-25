@@ -33,9 +33,9 @@ public class ClasspathValidatorArguments {
 
     private List<String> extractParameters(String parameterName, List<String> arguments) {
         List<String> collectedValues = new ArrayList<>();
+        String prefix = String.format("%s=", parameterName);
 
         for (String arg : arguments) {
-            String prefix = String.format("%s=", parameterName);
             if (arg.startsWith(prefix)) {
                 String parsedValue = arg.substring(prefix.length());
                 if (!parsedValue.isEmpty()) {
