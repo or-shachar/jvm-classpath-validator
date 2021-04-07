@@ -11,18 +11,29 @@ def _construct_args(args, argument_name, values):
             '''"{0}={1}"'''.format(argument_name, value)
         )
 
+def _construct_file(ctx, contents, file_name):
+    file = ctx.actions.declare_file(file_name)
+
+    ctx.actions.write(
+        output = file,
+        content = "\n".join(contents),
+    )
+
+    return file
+
 def _impl(ctx):
     target = ctx.attr.target
     runtime_jars = target[java_common.provider].transitive_runtime_jars.to_list()
 
     jars = [(_label_as_string(j.owner) + " " + j.short_path) for j in runtime_jars]
+    jar_file = _construct_file(ctx, jars, "{0}_jars.txt".format(ctx.label.name))
 
     arguments = []
     _construct_args(arguments, "--ignore-prefix", ctx.attr.ignore_prefixes)
     _construct_args(arguments, "--ignore-suffix", ctx.attr.ignore_suffixes)
     _construct_args(arguments, "--include-prefix", ctx.attr.include_prefixes)
     _construct_args(arguments, "--include-suffix", ctx.attr.include_suffixes)
-    _construct_args(arguments, "--jar-targets", jars)
+    _construct_args(arguments, "--jar-targets", [jar_file.short_path])
 
     # generate executable command
     validator_exectuable = ctx.attr._validator[DefaultInfo].files_to_run.executable.short_path
@@ -39,7 +50,7 @@ def _impl(ctx):
     )
 
     # compute runfiles
-    runfiles = ctx.runfiles(files = [exec,] + runtime_jars) \
+    runfiles = ctx.runfiles(files = [exec, jar_file] + runtime_jars) \
         .merge(ctx.attr._validator[DefaultInfo].default_runfiles)
 
     return [DefaultInfo(executable = exec, runfiles = runfiles)]

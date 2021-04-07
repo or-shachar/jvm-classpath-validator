@@ -9,7 +9,7 @@ public class ClasspathValidatorArguments {
     private List<String> ignoreSuffix = new ArrayList<>();
     private List<String> includePrefix = new ArrayList<>();
     private List<String> includeSuffix = new ArrayList<>();
-    private List<String> jarTargets = new ArrayList<>();
+    private String jarTargets;
 
     final private String JarTargets = "--jar-targets";
     final private String IgnorePrefix = "--ignore-prefix";
@@ -17,14 +17,17 @@ public class ClasspathValidatorArguments {
     final private String IncludePrefix = "--include-prefix";
     final private String IncludeSuffix = "--include-suffix";
 
-    final private List<String> Arguments = Arrays.asList(
-        JarTargets, IgnorePrefix, IgnoreSuffix, IncludePrefix, IncludeSuffix
-    );
 
     public ClasspathValidatorArguments(String[] args) {
         List<String> arguments = Arrays.asList(args);
 
-        jarTargets = extractParameters(JarTargets, arguments);
+        List<String> jarTargetsArgs = extractParameters(JarTargets, arguments);
+
+        if (jarTargetsArgs.size() != 1) {
+            throw new IllegalArgumentException(String.format("'%s' must be specified exactly once", JarTargets));
+        }
+        jarTargets = jarTargetsArgs.get(0);
+
         ignorePrefix = extractParameters(IgnorePrefix, arguments);
         ignoreSuffix = extractParameters(IgnoreSuffix, arguments);
         includePrefix = extractParameters(IncludePrefix, arguments);
@@ -63,7 +66,7 @@ public class ClasspathValidatorArguments {
         return includeSuffix;
     }
 
-    public List<String> getJarTargets() {
+    public String getJarTargets() {
         return jarTargets;
     }
 }

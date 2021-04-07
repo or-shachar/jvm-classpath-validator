@@ -5,10 +5,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.StandardOpenOption;
 
 import static com.bazelbuild.java.classpath.ClassPathValidatorTestingUtils.prepareDummyJarWith;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +28,7 @@ public class ClasspathValidatorCliIT {
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        String[] args = getJarTargetsParameter(jarInputA, jarInputB);
+        String[] args = createArgs(jarInputA, jarInputB);
 
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
@@ -41,7 +41,18 @@ public class ClasspathValidatorCliIT {
         String[] args = {"--jar-targets=" + inputFile.toString()};
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
-        assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Illegal line in jars file");
+        assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("is not readable");
+    }
+
+    @Test
+    public void throwIllegalArgumentForBadlyFormattedFiles() throws IOException {
+        Path inputFile = Files.createTempFile("jarFiles",".txt");
+        Files.write(inputFile, "This is not formatted correctly".getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+        String[] args = {"--jar-targets=" + inputFile.toString()};
+
+        Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
+
+        assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("llegal line in jars file");
     }
 
     @Test
@@ -55,7 +66,7 @@ public class ClasspathValidatorCliIT {
         Files.delete(dummyJarPathB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        String[] args = getJarTargetsParameter(jarInputA, jarInputB);
+        String[] args = createArgs(jarInputA, jarInputB);
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("is not readable");
@@ -70,19 +81,22 @@ public class ClasspathValidatorCliIT {
         Path dummyJarPathB = prepareDummyJarWith(jarEntryB);
         ClasspathValidatorJarInput jarInputB = new ClasspathValidatorJarInput("//b",dummyJarPathB);
 
-        String[] args = getJarTargetsParameter(jarInputA, jarInputB);
+        String[] args = createArgs(jarInputA, jarInputB);
         Throwable thrown = catchThrowable(() -> ClasspathValidatorCli.main(args));
 
         assertThat(thrown).isNull();
     }
 
-    private String[] getJarTargetsParameter(ClasspathValidatorJarInput ...jarInputs) {
-        List<String> args = new ArrayList<>();
+    private String[] createArgs(ClasspathValidatorJarInput... jarsInput) throws IOException {
+        Path inputFile = Files.createTempFile("jarFiles",".txt");
 
-        for (ClasspathValidatorJarInput jarInput: jarInputs) {
-            args.add(String.format("--jar-targets=%s %s", jarInput.label, jarInput.jarPath.toString()));
+        for (ClasspathValidatorJarInput input:jarsInput) {
+            String line = String.format("%s %s\n", input.label, input.jarPath.toString());
+            Files.write(inputFile, line.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         }
 
-        return args.toArray(new String[args.size()]);
+        return new String[]{
+            String.format("--jar-targets=%s", inputFile.toString())
+        };
     }
 }
