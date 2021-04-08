@@ -15,7 +15,9 @@ public class ClasspathValidatorCli {
 
         ClasspathValidatorArguments cliArgs = new ClasspathValidatorArguments(args);
 
-        List<String> labelsToJarsPaths = cliArgs.getJarTargets();
+        String labelsToJarsPathsFile = cliArgs.getJarTargets();
+        List<String> labelsToJarsPaths = readInputLines(labelsToJarsPathsFile);
+
         List<String> ignorePrefixes = cliArgs.getIgnorePrefix();
         List<String> ignoreSuffixes = cliArgs.getIgnoreSuffix();
         List<String> includePrefixes = cliArgs.getIncludePrefix();
@@ -65,5 +67,14 @@ public class ClasspathValidatorCli {
             throw new IllegalArgumentException(error);
         }
         return path;
+    }
+
+    private static List<String> readInputLines(String filePath) throws IOException {
+        Path targetsToJarsFile = asReadablePath(filePath);
+        return Files.readAllLines(targetsToJarsFile).stream()
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .filter(s -> !s.startsWith("#"))
+            .collect(Collectors.toList());
     }
 }
